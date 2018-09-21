@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>canvas</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			
+			#canvas {
+				background: red;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas id="canvas"></canvas>
+		<div style="position: fixed;top: 10px;left: 10px;">
+			<button id="eraser">橡皮擦</button>
+			<button id="pen">画笔</button>
+		</div>
+
+	</body>
+
+</html>
+<script>
+	// 标识符
+	var down_bool = false;
+	var erasers = false; //用户点击橡皮擦后，不能立即使用，在用户点击一次屏幕后，橡皮擦正式使用。
+	var screens = false; //点击橡皮擦后，是否点击屏幕。 
+	//初始化
+	var lastPoint = {
+		x: '',
+		y: ''
+	};
+
+
+	//固定格式
+	var cvs = document.getElementById("canvas");
+	var canvas = cvs.getContext("2d");
+	getHeightWidth();
+	//视口宽高
+	window.onresize = function() {
+		getHeightWidth();
+	}
+
+	cvs.onmousedown = function(e) {
+		down_bool = true;
+		var x = (e.clientX) - 3;
+		var y = (e.clientY) - 3;
+		if(erasers) {
+			screens = true;
+			canvas.clearRect(x, y, 10, 10);
+		}
+		drawCircle(x, y, 1);
+		//鼠标点击起点
+		lastPoint = {
+			x: x,
+			y: y
+		};
+	}
+
+	cvs.onmousemove = function(e) {
+		if(down_bool) {
+			var x = (e.clientX) - 3;
+			var y = (e.clientY) - 3;
+			if(screens && erasers) {
+				canvas.clearRect(x, y, 10, 10);
+			} else {
+				drawCircle(x, y, 1);
+				drawLine(lastPoint.x, lastPoint.y, x, y);
+				lastPoint = {
+					x: x,
+					y: y
+				};
+			}
+		}
+	}
+
+	cvs.onmouseup = function(e) {
+		down_bool = false
+		if(screens && erasers) {
+			screens = false;
+			erasers = false;
+			
+			eraser.style = 'display:inline';
+			pen.style = 'display:none';
+		}
+	}
+
+	//小圆点
+	function drawCircle(x, y, radio) {
+		canvas.beginPath();
+		canvas.arc(x, y, radio, 0, 2 * Math.PI);
+		canvas.fill();
+	}
+
+	//点跟点之间的先
+	function drawLine(x1, y1, x2, y2) {
+		canvas.beginPath();
+		canvas.strokeStyle = '#000';
+		canvas.moveTo(x1, y1); //起点
+		canvas.lineWidth = 5;
+		canvas.lineTo(x2, y2); //终点
+		canvas.stroke();
+		canvas.closePath();
+	}
+
+	//获取当前视口的宽高
+	function getHeightWidth() {
+		//cvs
+		var widths = document.documentElement.clientWidth;
+		var heights = document.documentElement.clientHeight;
+
+		cvs.width = widths;
+		cvs.height = heights;
+	}
+
+	//用户点击橡皮擦
+	var eraser = document.getElementById('eraser');
+	
+	//点击画笔
+	var pen = document.getElementById('pen');
+	pen.style = 'display:none';
+	eraser.onclick = function() {
+		erasers = true;
+		pen.style = 'display:inline';
+		eraser.style = 'display:none';
+	}
+	
+	pen.onclick = function() {
+		erasers = false;
+		screens = false;
+		pen.style = 'display:none';
+		eraser.style = 'display:inline';
+	}
+</script>

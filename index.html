@@ -14,6 +14,7 @@
 			
 			#canvas {
 				background: red;
+				display: block;
 			}
 		</style>
 	</head>
@@ -24,7 +25,6 @@
 			<button id="eraser">橡皮擦</button>
 			<button id="pen">画笔</button>
 		</div>
-
 	</body>
 
 </html>
@@ -85,13 +85,6 @@
 		//手指离开触摸屏时触发
 		cvs.ontouchend = function(e) {
 			down_bool = false
-			if(screens && erasers) {
-				screens = false;
-				erasers = false;
-
-				eraser.style = 'display:inline';
-				pen.style = 'display:none';
-			}
 		}
 	} else {
 

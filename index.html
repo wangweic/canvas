@@ -95,6 +95,7 @@
 			</ol>
 			<img id="del" src="./images/del.png" />
 			<img id="dow" src="./images/dow.png" />
+			<img id="filter" src="./images/filter.png" />
 		</div>
 	</body>
 
@@ -298,4 +299,18 @@
 		a.target = '_blank';
 		a.click();
 	}
-</script>
+	
+	//滤镜 反向
+	filter.onclick = function() {
+		var imageData = canvas.getImageData(0, 0, cvs.width, cvs.height);
+		var pixelData = imageData.data;
+		for(var i = 0; i < cvs.width * cvs.height; i++) {
+			var r = pixelData[i * 4 + 0];
+			var g = pixelData[i * 4 + 1];
+			var b = pixelData[i * 4 + 2];
+			pixelData[i * 4 + 0] = 255 - r;
+			pixelData[i * 4 + 1] = 255 - g;
+			pixelData[i * 4 + 2] = 255 - b;
+		}
+		canvas.putImageData(imageData, 0, 0, 0, 0, cvs.width, cvs.height);
+	}</script>

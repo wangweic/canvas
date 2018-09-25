@@ -3,9 +3,9 @@
 
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
-		<title>canvas</title>
+		<title>我的画板</title>
 		<style>
 			* {
 				margin: 0;
@@ -39,7 +39,6 @@
 		y: ''
 	};
 
-
 	//固定格式
 	var cvs = document.getElementById("canvas");
 	var canvas = cvs.getContext("2d");
@@ -48,49 +47,125 @@
 	window.onresize = function() {
 		getHeightWidth();
 	}
-
-	cvs.onmousedown = function(e) {
-		down_bool = true;
-		var x = (e.clientX) - 3;
-		var y = (e.clientY) - 3;
-		if(erasers) {
-			screens = true;
-			canvas.clearRect(x, y, 10, 10);
+	//特性检测
+	if(document.body.ontouchstart !== undefined) {
+		//手指触摸屏开始
+		cvs.ontouchstart = function(e) {
+			down_bool = true;
+			var x = (e.touches[0].clientX) - 3;
+			var y = (e.touches[0].clientY) - 3;
+			if(erasers) {
+				screens = true;
+				canvas.clearRect(x, y, 10, 10);
+			}
+			drawCircle(x, y, 1);
+			//鼠标点击起点
+			lastPoint = {
+				x: x,
+				y: y
+			};
 		}
-		drawCircle(x, y, 1);
-		//鼠标点击起点
-		lastPoint = {
-			x: x,
-			y: y
-		};
-	}
+		//手指触摸屏结束
+		cvs.ontouchmove = function(e) {
+			if(down_bool) {
+				var x = (e.touches[0].clientX) - 3;
+				var y = (e.touches[0].clientY) - 3;
+				if(screens && erasers) {
+					canvas.clearRect(x, y, 10, 10);
+				} else {
+					drawCircle(x, y, 1);
+					drawLine(lastPoint.x, lastPoint.y, x, y);
+					lastPoint = {
+						x: x,
+						y: y
+					};
+				}
+			}
+		}
+		//手指离开触摸屏时触发
+		cvs.ontouchend = function(e) {
+			down_bool = false
+			if(screens && erasers) {
+				screens = false;
+				erasers = false;
 
-	cvs.onmousemove = function(e) {
-		if(down_bool) {
+				eraser.style = 'display:inline';
+				pen.style = 'display:none';
+			}
+		}
+	} else {
+
+		cvs.onmousedown = function(e) {
+			down_bool = true;
 			var x = (e.clientX) - 3;
 			var y = (e.clientY) - 3;
-			if(screens && erasers) {
+			if(erasers) {
+				screens = true;
 				canvas.clearRect(x, y, 10, 10);
-			} else {
-				drawCircle(x, y, 1);
-				drawLine(lastPoint.x, lastPoint.y, x, y);
-				lastPoint = {
-					x: x,
-					y: y
-				};
+			}
+			drawCircle(x, y, 1);
+			//鼠标点击起点
+			lastPoint = {
+				x: x,
+				y: y
+			};
+		}
+
+		cvs.onmousemove = function(e) {
+			if(down_bool) {
+				var x = (e.clientX) - 3;
+				var y = (e.clientY) - 3;
+				if(screens && erasers) {
+					canvas.clearRect(x, y, 10, 10);
+				} else {
+					drawCircle(x, y, 1);
+					drawLine(lastPoint.x, lastPoint.y, x, y);
+					lastPoint = {
+						x: x,
+						y: y
+					};
+				}
+			}
+		}
+
+		cvs.onmouseup = function(e) {
+			down_bool = false
+			if(screens && erasers) {
+				screens = false;
+				erasers = false;
+
+				eraser.style = 'display:inline';
+				pen.style = 'display:none';
 			}
 		}
 	}
+	//获取当前视口的宽高
+	function getHeightWidth() {
+		//cvs
+		var widths = document.documentElement.clientWidth;
+		var heights = document.documentElement.clientHeight;
 
-	cvs.onmouseup = function(e) {
-		down_bool = false
-		if(screens && erasers) {
-			screens = false;
-			erasers = false;
-			
-			eraser.style = 'display:inline';
-			pen.style = 'display:none';
-		}
+		cvs.width = widths;
+		cvs.height = heights;
+	}
+
+	//用户点击橡皮擦
+	var eraser = document.getElementById('eraser');
+
+	//点击画笔
+	var pen = document.getElementById('pen');
+	pen.style = 'display:none';
+	eraser.onclick = function() {
+		erasers = true;
+		pen.style = 'display:inline';
+		eraser.style = 'display:none';
+	}
+
+	pen.onclick = function() {
+		erasers = false;
+		screens = false;
+		pen.style = 'display:none';
+		eraser.style = 'display:inline';
 	}
 
 	//小圆点
@@ -109,34 +184,5 @@
 		canvas.lineTo(x2, y2); //终点
 		canvas.stroke();
 		canvas.closePath();
-	}
-
-	//获取当前视口的宽高
-	function getHeightWidth() {
-		//cvs
-		var widths = document.documentElement.clientWidth;
-		var heights = document.documentElement.clientHeight;
-
-		cvs.width = widths;
-		cvs.height = heights;
-	}
-
-	//用户点击橡皮擦
-	var eraser = document.getElementById('eraser');
-	
-	//点击画笔
-	var pen = document.getElementById('pen');
-	pen.style = 'display:none';
-	eraser.onclick = function() {
-		erasers = true;
-		pen.style = 'display:inline';
-		eraser.style = 'display:none';
-	}
-	
-	pen.onclick = function() {
-		erasers = false;
-		screens = false;
-		pen.style = 'display:none';
-		eraser.style = 'display:inline';
 	}
 </script>

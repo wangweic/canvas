@@ -67,6 +67,9 @@
 		}
 		//手指触摸屏结束
 		cvs.ontouchmove = function(e) {
+			if(!document.querySelector('body').contains(e.target)) {
+				e.preventDefault();
+			}
 			if(down_bool) {
 				var x = (e.touches[0].clientX) - 3;
 				var y = (e.touches[0].clientY) - 3;

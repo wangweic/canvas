@@ -7,23 +7,91 @@
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<title>我的画板</title>
 		<style>
+			body {
+				overflow: hidden;
+			}
+			
+			ol,
+			li {
+				list-style: none;
+			}
+			
 			* {
 				margin: 0;
 				padding: 0;
 			}
 			
 			#canvas {
-				background: red;
 				display: block;
+			}
+			
+			div.save img {
+				width: 1.8rem;
+				transition: all 0.3s;
+				padding-left: 10px;
+			}
+			
+			img.save_open {
+				transform: scale(1.3);
+			}
+			
+			ol {
+				position: fixed;
+			}
+			
+			ol>li {
+				width: 1.7rem;
+				height: 1.7rem;
+				margin-top: 0.5rem;
+				box-shadow: 2px 0 0 #eee;
+				border-radius: 50%;
+				margin-left: 0.5rem;
+				transition: all 0.3s;
+			}
+			
+			ol>li.red {
+				background: red;
+			}
+			
+			ol>li.green {
+				background: green;
+			}
+			
+			ol>li.blue {
+				background: blue;
+			}
+			
+			ol>li.black {
+				background: black;
+			}
+			
+			ol>li.action {
+				width: 1.7rem;
+				height: 1.7rem;
+				margin-top: 0.5rem;
+				box-shadow: 2px 0 0 #eee;
+				border-radius: 50%;
+				transform: scale(1.2);
+				margin-left: 0.5rem;
 			}
 		</style>
 	</head>
 
 	<body>
 		<canvas id="canvas"></canvas>
-		<div style="position: fixed;top: 10px;left: 10px;">
-			<button id="eraser">橡皮擦</button>
-			<button id="pen">画笔</button>
+		<div class="save" style="position: fixed;top: 10px;left: 10px;">
+			<!--<button id="eraser">橡皮擦</button>
+			<button>画笔</button>-->
+			<img id="pen" src="./images/open.png" />
+			<img id="eraser" src="./images/rubber1.png" />
+			<ol>
+				<li id="black" class="black action"></li>
+				<li id="red" class="red"></li>
+				<li id="green" class="green"></li>
+				<li id="blue" class="blue"></li>
+			</ol>
+			<img id="del" src="./images/del.png" />
+			<img id="dow" src="./images/dow.png" />
 		</div>
 	</body>
 
@@ -65,11 +133,8 @@
 				y: y
 			};
 		}
-		//手指触摸屏结束
+		//手指触摸屏结束hgggggggggggf
 		cvs.ontouchmove = function(e) {
-			if(!document.querySelector('body').contains(e.target)) {
-				e.preventDefault();
-			}
 			if(down_bool) {
 				var x = (e.touches[0].clientX) - 3;
 				var y = (e.touches[0].clientY) - 3;
@@ -129,9 +194,6 @@
 			if(screens && erasers) {
 				screens = false;
 				erasers = false;
-
-				eraser.style = 'display:inline';
-				pen.style = 'display:none';
 			}
 		}
 	}
@@ -150,18 +212,23 @@
 
 	//点击画笔
 	var pen = document.getElementById('pen');
-	pen.style = 'display:none';
 	eraser.onclick = function() {
 		erasers = true;
-		pen.style = 'display:inline';
-		eraser.style = 'display:none';
+		eraser.className = 'save_open';
+		eraser.src = './images/rubber.png';
+
+		pen.className = '';
+		pen.src = './images/open1.png';
 	}
 
 	pen.onclick = function() {
 		erasers = false;
 		screens = false;
-		pen.style = 'display:none';
-		eraser.style = 'display:inline';
+		pen.className = 'save_open';
+		pen.src = './images/open.png';
+
+		eraser.className = '';
+		eraser.src = './images/rubber1.png';
 	}
 
 	//小圆点
@@ -174,11 +241,56 @@
 	//点跟点之间的先
 	function drawLine(x1, y1, x2, y2) {
 		canvas.beginPath();
-		canvas.strokeStyle = '#000';
 		canvas.moveTo(x1, y1); //起点
 		canvas.lineWidth = 5;
 		canvas.lineTo(x2, y2); //终点
 		canvas.stroke();
 		canvas.closePath();
+	}
+
+	//给颜色加点击事件切换
+	red.onclick = function() {
+		canvas.strokeStyle = 'red';
+		red.classList.add('action');
+		green.classList.remove('action');
+		blue.classList.remove('action');
+		black.classList.remove('action');
+	}
+	green.onclick = function() {
+		canvas.strokeStyle = 'green';
+		green.classList.add('action');
+		red.classList.remove('action');
+		blue.classList.remove('action');
+		black.classList.remove('action');
+	}
+	blue.onclick = function() {
+		canvas.strokeStyle = 'blue';
+		blue.classList.add('action');
+		red.classList.remove('action');
+		green.classList.remove('action');
+		black.classList.remove('action');
+	}
+	black.onclick = function() {
+		canvas.strokeStyle = 'black';
+		black.classList.add('action');
+		red.classList.remove('action');
+		green.classList.remove('action');
+		blue.classList.remove('action');
+	}
+
+	//清空画布
+	del.onclick = function() {
+		canvas.clearRect(0, 0, cvs.width, cvs.height);
+	}
+
+	//下载
+	dow.onclick = function() {
+		var urls = cvs.toDataURL("image/png");
+		var a = document.createElement('a');
+		document.body.appendChild(a)
+		a.href = urls;
+		a.download = '画儿';
+		a.target = '_blank';
+		a.click();
 	}
 </script>
